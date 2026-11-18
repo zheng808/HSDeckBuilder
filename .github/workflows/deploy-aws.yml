@@ -23,11 +23,15 @@ jobs:
         env:
           ROLE: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
         run: |
-          echo "AWS_DEPLOY_ROLE_ARN='$ROLE'"
+          echo "::notice title=AWS_DEPLOY_ROLE_ARN::'$ROLE' (length ${#ROLE})"
           case "$ROLE" in
             arn:aws:iam::[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]:role/*) echo "looks like a role ARN" ;;
             *) echo "::error::AWS_DEPLOY_ROLE_ARN must look like arn:aws:iam::<account-id>:role/<name> (get it from 'tofu output -raw github_deploy_role_arn' in infra/aws)"; exit 1 ;;
           esac
+          # Report the OIDC token claims AWS will see (claims only, never the token).
+          TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value)
+          CLAIMS=$(echo "$TOKEN" | cut -d. -f2 | tr '_-' '/+' | awk '{ l=length($0)%4; if (l==2) print $0"=="; else if (l==3) print $0"="; else print $0 }' | base64 -d 2>/dev/null | jq -c '{iss, aud, sub, repository, ref, event_name}')
+          echo "::notice title=OIDC claims::$CLAIMS"
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
