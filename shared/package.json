@@ -1,0 +1,24 @@
+{
+  "name": "@hsdeck/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Domain types, deck rules, deck-code codec and API schemas shared by server and client.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "zod": "^4.1.0"
+  }
+}

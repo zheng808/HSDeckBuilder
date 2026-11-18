@@ -1,0 +1,6 @@
+{
+  "source": "https://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json",
+  "fetchedAt": "2026-11-17T20:42:58.610Z",
+  "cards": 6529,
+  "heroes": 790
+}

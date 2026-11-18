@@ -1,0 +1,53 @@
+[
+  {
+    "event": "Masters Tour World Championship 2026",
+    "type": "tournament",
+    "url": "https://www.hsguru.com/wc/2026",
+    "date": "2026-09-12",
+    "decks": [
+      {
+        "player": "XiaoT",
+        "placement": "Group B · Finalist",
+        "name": "Attack Druid",
+        "archetype": "Attack Druid",
+        "code": "AAECAZICCqn1BqGBB5KDB6+HB6yIB4KYB+DAB+LAB+XEB6PaBwqunwSqrwesrwfosQe+sgfXwAeR2gfH5ge85wfK5wcAAA=="
+      },
+      {
+        "player": "XiaoT",
+        "placement": "Group B · Finalist",
+        "name": "Sneaky Harold Rogue",
+        "archetype": "Harold Rogue",
+        "code": "AAECAaIHCqGBB5KDB4KYB9GdB+ylB9C/B4rUB5vUB4jZB9DgBwr3nwSQgwfHrge0wQfAwQedxQfVxQej4AfO4AfD8gcAAA=="
+      },
+      {
+        "player": "Hyosung",
+        "placement": "Group A",
+        "name": "Raza Demon Hunter",
+        "archetype": "Raza DH",
+        "code": "AAECAea5AwbUnwS1lweKqgeSqgeTqgfosQcM4fgFzZ4Gzp4G054G3v8GtpcH4rEHkrIHkr8H5eQHk+gHpvgHAAA="
+      },
+      {
+        "player": "McBanterFace",
+        "placement": "Group A",
+        "name": "Void Soul Demon Hunter",
+        "archetype": "Void Soul DH",
+        "code": "AAECAea5AwSongbNngaD2gen9wcN4fgF0J4G054G3v8GtpcH550HobEHlb8HxN0Hxt0Hx90HteEHt+EHAAA="
+      }
+    ]
+  },
+  {
+    "event": "Masters Tour Winter 2026",
+    "type": "tournament",
+    "url": "https://www.hsguru.com/tournament-lineups/masters_tour/winter_2026",
+    "date": "2026-02-01",
+    "decks": [
+      {
+        "player": "gyu",
+        "placement": "Group C",
+        "name": "Face Hunter",
+        "archetype": "Face Hunter",
+        "code": "AAECAR8EmacHmqcHm6cHxbEHDamfBKqfBNOeBq+SB4WVB86bB+6fB5CnB5inB9SvB7TAB7nAB7vABwAA"
+      }
+    ]
+  }
+]

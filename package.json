@@ -1,0 +1,33 @@
+{
+  "name": "hearthstone-deck-builder",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Build, validate, publish and browse Hearthstone decks (Standard & Wild).",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm:dev -w server\" \"npm:dev -w client\"",
+    "build": "npm run build -w client",
+    "start": "npm run start -w server",
+    "test": "npm test -ws --if-present",
+    "typecheck": "npm run typecheck -ws --if-present",
+    "check": "npm run typecheck && npm test && npm run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "seed:cards": "npm run seed:cards -w server",
+    "import:pro-decks": "npm run import:pro-decks -w server"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "concurrently": "^9.1.0",
+    "prettier": "^3.6.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

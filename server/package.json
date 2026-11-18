@@ -1,0 +1,22 @@
+{
+  "name": "@hsdeck/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Hono + SQLite API for the Hearthstone deck builder.",
+  "scripts": {
+    "dev": "node --disable-warning=ExperimentalWarning --import tsx --watch src/index.ts",
+    "start": "NODE_ENV=production node --disable-warning=ExperimentalWarning --import tsx src/index.ts",
+    "seed:cards": "node --import tsx scripts/fetch-cards.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p .",
+    "import:pro-decks": "node --disable-warning=ExperimentalWarning --import tsx scripts/import-pro-decks.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.0",
+    "@hsdeck/shared": "*",
+    "hono": "^4.10.0",
+    "tsx": "^4.20.0",
+    "zod": "^4.1.0"
+  }
+}

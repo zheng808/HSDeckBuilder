@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm test*)",
+      "Bash(npm install*)",
+      "Bash(npx vitest*)",
+      "Bash(npx prettier*)",
+      "Bash(npx tsc*)",
+      "Bash(curl -s http://localhost:3001/*)",
+      "Bash(curl -s http://localhost:5173/*)",
+      "Bash(node --import tsx *)",
+      "Bash(node .claude/hooks/*)"
+    ],
+    "deny": ["Read(./server/*.db)", "Read(./.env)"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-generated.mjs\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/format-and-remind.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}

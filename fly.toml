@@ -1,0 +1,31 @@
+# Fly.io config. Create the app and volume once, then `flyctl deploy`:
+#   flyctl apps create hsdeckbuilder
+#   flyctl volumes create data --size 1 --region <region>
+#   flyctl deploy
+app = "hsdeckbuilder"
+primary_region = "sea"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3001"
+  DB_PATH = "/data/decks.db"
+
+[[mounts]]
+  source = "data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    method = "GET"
+    path = "/api/health"
+    interval = "30s"
+    timeout = "5s"
