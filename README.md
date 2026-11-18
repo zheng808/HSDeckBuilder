@@ -48,13 +48,13 @@ The browser generates a random owner token on first visit and sends it with ever
 - **Release image** (`.github/workflows/release.yml`): on every push to `main`, runs CI and then builds the production Docker image and publishes it to GitHub Container Registry as `ghcr.io/zheng808/hsdeckbuilder:latest` (and a commit-sha tag). No secrets needed.
 - **Deploy to Fly.io** (`.github/workflows/deploy-fly.yml`): manual workflow; add a `FLY_API_TOKEN` repository secret, create the app and a 1 GB volume named `data` as described in `fly.toml`, then run the workflow or `flyctl deploy` locally.
 
-Run the published image anywhere with Docker:
+Run the published image anywhere with Podman (or Docker; same commands with `docker`):
 
 ```bash
-docker run -d -p 3001:3001 -v hsdeck-data:/data ghcr.io/zheng808/hsdeckbuilder:latest
+podman run -d -p 3001:3001 -v hsdeck-data:/data ghcr.io/zheng808/hsdeckbuilder:latest
 ```
 
-The API serves the built client on the same port and stores decks in `/data/decks.db`. Seed pro lists into a running container with `docker exec <container> npm run import:pro-decks`.
+Build it locally with `podman build --format docker -t hsdeckbuilder .` (the `--format docker` flag keeps the `HEALTHCHECK`; CI builds the same `Dockerfile` with Buildx on the GitHub runner). The API serves the built client on the same port and stores decks in `/data/decks.db`. Seed pro lists into a running container with `podman exec <container> npm run import:pro-decks`.
 
 ## Configuration
 

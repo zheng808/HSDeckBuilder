@@ -66,3 +66,5 @@ Consumed as TypeScript source (`main: src/index.ts`): tsx runs it on the server,
 ## Deployment
 
 `npm run build && npm start` runs one Node process serving `/api` and the SPA. Any Node host (Fly, Railway, Render, a VM) works; mount a volume for `decks.db` or point `DB_PATH` at it.
+
+The `Dockerfile` packages exactly that: a multi-stage build (install, build the client, prune dev dependencies) into a `node:22-alpine` image running as the `node` user with `/data` as the SQLite volume. Locally it is built and run with Podman; the release workflow publishes it to GHCR on every push to `main`, and `fly.toml` plus the manual Fly workflow deploy that image with a persistent volume.

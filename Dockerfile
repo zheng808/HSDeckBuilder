@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 # Single-process image: the Hono API serves the built React client and stores
 # decks in a SQLite file under /data (mount a volume there).
 

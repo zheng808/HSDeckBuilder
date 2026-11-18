@@ -55,4 +55,14 @@ Kill the background task you started (TaskStop) or `pkill -f "tsx --watch src/in
 npm run build && npm start   # server serves client/dist on :3001
 ```
 
+Container (Podman is the local tool of choice; `podman machine start` first on macOS):
+
+```bash
+podman build --format docker -t hsdeckbuilder:local .
+podman run -d --name hsdeck -p 3101:3001 -v hsdeck-data:/data hsdeckbuilder:local
+curl -s http://localhost:3101/api/health
+podman exec hsdeck npm run import:pro-decks
+podman rm -f hsdeck
+```
+
 Database file: `server/decks.db` (delete it to reset; it is git-ignored).
