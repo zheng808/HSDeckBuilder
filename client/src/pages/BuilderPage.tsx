@@ -116,6 +116,7 @@ function Workbench({ heroClass }: { heroClass: CardClass }) {
     const all = cardsQuery.data ?? [];
     const q = filters.q.trim().toLowerCase();
     return all.filter((c) => {
+      if (c.bundledWith !== undefined) return false; // companions come with their legendary
       if (store.format === 'STANDARD' && !c.standard) return false;
       if (filters.owner === 'CLASS' && c.cardClass === 'NEUTRAL') return false;
       if (filters.owner === 'NEUTRAL' && c.cardClass !== 'NEUTRAL') return false;

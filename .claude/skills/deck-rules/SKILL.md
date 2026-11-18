@@ -14,7 +14,7 @@ description: Reference for the Hearthstone deck-building rules this app enforces
 | Death Knight: total runes ≤ 3, where the deck's runes are the per-rune max over its cards | `requiredRunes`, `RUNES_EXCEEDED`   |                                                           |
 | Unknown card ids are an error                                                             | `UNKNOWN_CARD`                      | happens when data rotates out a card                      |
 
-Fabled bundles: `server/scripts/fetch-cards.ts#findBundles` pulls uncollectible, elite `<parent>t<n>` tokens of collectible cards whose text says **Fabled** into `cards.json` with `bundledWith`; they are hidden from `/api/cards` and cost no dust. The builder adds and removes a verified bundle as a unit.
+Fabled bundles: `server/scripts/fetch-cards.ts#findBundles` pulls uncollectible, elite `<parent>t<n>` tokens of collectible cards whose text says **Fabled** into `cards.json` with `bundledWith`; `/api/cards` returns them (so deck lookups resolve) and the builder's picker hides them; they cost no dust. The builder adds and removes a verified bundle as a unit.
 
 Reprints: `server/src/cards/card-store.ts#linkReprints` groups cards by name, elects a canonical print (Core → Standard-legal → oldest), sets `countAsCopyOfDbfId` on the rest, and hides them from `/api/cards`. Decks may still contain the hidden ids (deck codes from the game use them).
 

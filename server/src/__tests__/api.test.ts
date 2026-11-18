@@ -61,6 +61,14 @@ describe('cards', () => {
     expect(fireballs[0]?.set).toBe('CORE');
   });
 
+  it('returns bundled companions so decks resolve, flagged for pickers to hide', async () => {
+    const list = (await (await app.request('/api/cards?class=HUNTER&q=ranger')).json()) as Card[];
+    const alleria = list.find((c) => c.name === 'Ranger Captain Alleria');
+    const sylvanas = list.find((c) => c.name === 'Ranger General Sylvanas');
+    expect(alleria?.bundledWith).toBe(sylvanas?.dbfId);
+    expect(sylvanas?.bundledCards).toContain(alleria?.dbfId);
+  });
+
   it('rejects bad query values', async () => {
     expect((await app.request('/api/cards?class=WIZARD')).status).toBe(400);
   });

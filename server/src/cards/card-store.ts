@@ -100,11 +100,14 @@ export class CardStore {
     return this.heroesByDbfId.get(heroDbfId)?.cardClass;
   }
 
+  /**
+   * Cards matching the query. Bundled companions (`bundledWith`) are included so
+   * clients can resolve every card a deck may contain; pickers should hide them.
+   */
   query(q: CardQuery): Card[] {
     const needle = q.q?.toLowerCase();
     return this.cards.filter((card) => {
       if (this.shadowed.has(card.dbfId)) return false;
-      if (card.bundledWith !== undefined) return false; // companions come with their parent
       if (q.class && !cardPlayableInClass(card, q.class)) return false;
       if (q.format && !cardLegalInFormat(card, q.format)) return false;
       if (q.cost !== undefined && card.cost !== q.cost) return false;
