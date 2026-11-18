@@ -2,6 +2,7 @@ name: Deploy to AWS
 # After "Release image" publishes a new image, assume the OIDC deploy role created by
 # infra/aws and ask SSM to run /opt/hsdeck/deploy.sh on the instance (tag App=<app_name>).
 # Needs repository variables: AWS_DEPLOY_ROLE_ARN (from `tofu output`), optionally AWS_REGION.
+# The role trusts GitHub's OIDC subject for this repo (both the classic and the owner@id/repo@id formats).
 on:
   workflow_run:
     workflows: ['Release image']
