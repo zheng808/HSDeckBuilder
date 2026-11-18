@@ -28,7 +28,7 @@ npm run build && npm start   # production: server serves client/dist
 
 ## AWS (OpenTofu)
 
-- `infra/aws/`: VPC + EC2 (Graviton) + EBS data volume + EIP + Caddy HTTPS on `<ip>.sslip.io` + DLM snapshots + GitHub OIDC deploy role. `/aws-infra` skill for operations; rules in `.claude/rules/infra.md`. Never apply/destroy without an explicit request.
+- `infra/aws/`: VPC + EC2 (Graviton) + EBS data volume + EIP + Caddy HTTPS on `<ip>.sslip.io` + DLM snapshots + GitHub OIDC deploy role. Applied 2026-11-18 in the personal account (us-west-2): https://44-253-144-163.sslip.io. State is local in `infra/aws/terraform.tfstate` (git-ignored). `/aws-infra` skill for operations; rules in `.claude/rules/infra.md`. Never apply/destroy without an explicit request.
 
 ## Where things live
 

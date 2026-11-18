@@ -1,6 +1,6 @@
 # Hearthstone Deck Builder
 
-[![CI](https://github.com/zheng808/HSDeckBuilder/actions/workflows/ci.yml/badge.svg)](https://github.com/zheng808/HSDeckBuilder/actions/workflows/ci.yml) **Live: [hsdeckbuilder.fly.dev](https://hsdeckbuilder.fly.dev)**
+[![CI](https://github.com/zheng808/HSDeckBuilder/actions/workflows/ci.yml/badge.svg)](https://github.com/zheng808/HSDeckBuilder/actions/workflows/ci.yml) **Live: [hsdeckbuilder.fly.dev](https://hsdeckbuilder.fly.dev)** (Fly.io) · **[44-253-144-163.sslip.io](https://44-253-144-163.sslip.io)** (AWS, OpenTofu)
 
 [![Release image](https://github.com/zheng808/HSDeckBuilder/actions/workflows/release.yml/badge.svg)](https://github.com/zheng808/HSDeckBuilder/actions/workflows/release.yml)
 
@@ -60,7 +60,7 @@ Build it locally with `podman build --format docker -t hsdeckbuilder .` (the `--
 
 ## AWS route (OpenTofu)
 
-[infra/aws](infra/aws/) is an OpenTofu stack that runs the same container on AWS: a small VPC, a Graviton `t4g.micro` instance with an EBS data volume (daily snapshots), an Elastic IP with automatic HTTPS on an `sslip.io` hostname, Session Manager instead of SSH, and a GitHub OIDC role so the "Deploy to AWS" workflow redeploys after every release. `tofu init && tofu apply` in that directory; details, cost (~$11/month) and teardown in [infra/aws/README.md](infra/aws/README.md).
+[infra/aws](infra/aws/) is an OpenTofu stack that runs the same container on AWS: a small VPC, a Graviton `t4g.micro` instance with an EBS data volume (daily snapshots), an Elastic IP with automatic HTTPS on an `sslip.io` hostname, Session Manager instead of SSH, and a GitHub OIDC role so the "Deploy to AWS" workflow redeploys after every release. Deployed on 2026-11-18 at [https://44-253-144-163.sslip.io](https://44-253-144-163.sslip.io) (account-specific; yours will differ). `tofu init && tofu apply` in that directory; details, cost (~$11/month) and teardown in [infra/aws/README.md](infra/aws/README.md).
 
 ## Configuration
 
