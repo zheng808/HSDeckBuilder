@@ -10,3 +10,4 @@ server/*.db-*
 server/data/*.tmp
 coverage/
 .claude/settings.local.json
+infra/secrets.env
