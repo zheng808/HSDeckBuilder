@@ -1,11 +1,13 @@
 import { Link } from 'react-router';
 import { DECK_SIZE, type DeckSummary } from '@hsdeck/shared';
-import { useDeleteDeck, useMyDecks, usePublishDeck, useUnpublishDeck } from '../api/hooks';
+import { useDeleteDeck, useMe, useMyDecks, usePublishDeck, useUnpublishDeck } from '../api/hooks';
 import { errorMessage } from '../api/client';
 import { classColor } from '../lib/class-meta';
 import { relativeTime, viewsLabel } from '../lib/format';
 import { ClassBadge } from '../components/ClassBadge';
 import { FormatBadge } from '../components/FormatBadge';
+import { SignInLinks } from '../components/auth/SignInLinks';
+import { AuthorLink } from '../components/deck/AuthorLink';
 import { SourceBadge } from '../components/deck/SourceBadge';
 import { Button, buttonClasses } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -14,6 +16,8 @@ import { useToast } from '../components/ui/Toast';
 
 export function MyDecksPage() {
   const decks = useMyDecks();
+  const me = useMe();
+  const signedIn = Boolean(me.data?.user);
 
   return (
     <div className="flex flex-col gap-4">
@@ -21,13 +25,24 @@ export function MyDecksPage() {
         <div>
           <h1 className="text-2xl font-bold">My decks</h1>
           <p className="text-sm text-ink-muted">
-            Decks created from this browser. Drafts are private until you publish them.
+            {signedIn
+              ? 'Your decks. Drafts are private until you publish them.'
+              : 'Decks created from this browser. Drafts are private until you publish them.'}
           </p>
         </div>
         <Link to="/build" className={buttonClasses('primary', 'sm')}>
           New deck
         </Link>
       </div>
+      {me.data && !signedIn && (
+        <div className="card-surface flex flex-wrap items-center justify-between gap-3 p-4">
+          <p className="text-sm">
+            Decks on this device are tied to this browser.{' '}
+            <span className="text-ink-muted">Sign in to keep them across devices.</span>
+          </p>
+          <SignInLinks returnTo="/my" />
+        </div>
+      )}
       {decks.isPending && <Spinner label="Loading your decks" />}
       {decks.isError && (
         <EmptyState title="Could not load your decks" description={errorMessage(decks.error)} />
@@ -103,6 +118,7 @@ function DeckRow({ deck }: { deck: DeckSummary }) {
           <ClassBadge cls={deck.heroClass} className="text-xs" />
           {deck.archetype && <span className="text-ink">{deck.archetype}</span>}
           {deck.source && <SourceBadge source={deck.source} />}
+          {deck.author && <AuthorLink author={deck.author} fallbackName={deck.authorName} />}
           <span>
             {deck.cardCount}/{DECK_SIZE} cards
           </span>

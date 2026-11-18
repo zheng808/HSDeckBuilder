@@ -14,4 +14,26 @@ export const config = {
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean),
+  /** Public origin used to build OAuth callback URLs, e.g. https://example.com */
+  appUrl: (process.env.APP_URL ?? 'http://localhost:5173').replace(/\/$/, ''),
+  /** Secret for signing the OAuth state cookie. Required in production. */
+  authSecret: process.env.AUTH_SECRET ?? 'dev-only-secret-change-me',
+  oauth: {
+    github:
+      process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+        ? { clientId: process.env.GITHUB_CLIENT_ID, clientSecret: process.env.GITHUB_CLIENT_SECRET }
+        : null,
+    google:
+      process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+        ? { clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET }
+        : null,
+  },
+  /** "provider:login" entries that become admins on sign-in, e.g. "github:zheng808". */
+  adminLogins: (process.env.ADMIN_LOGINS ?? '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean),
+  /** Machine token for POST /api/admin/collect (scheduled runs). */
+  adminApiToken: process.env.ADMIN_API_TOKEN ?? '',
+  youtubeApiKey: process.env.YOUTUBE_API_KEY ?? '',
 };

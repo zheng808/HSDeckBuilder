@@ -26,36 +26,9 @@ mount -a
 mkdir -p /data/app /data/caddy
 chown -R 1000:1000 /data/app   # the image runs as uid 1000 (node)
 
-# --- deploy script: idempotent, also used by the GitHub deploy workflow via SSM
+# --- deploy script: versioned in the repo; fetched here and by the GitHub deploy workflow
 mkdir -p /opt/hsdeck
-cat > /opt/hsdeck/deploy.sh <<'DEPLOY'
-#!/bin/bash
-set -euo pipefail
-IMAGE="${image}"
-APP_HOST="${app_host}"
-
-docker network inspect hsdeck >/dev/null 2>&1 || docker network create hsdeck
-
-docker pull "$IMAGE"
-docker rm -f hsdeck >/dev/null 2>&1 || true
-docker run -d --name hsdeck --restart unless-stopped --network hsdeck \
-  -v /data/app:/data "$IMAGE"
-
-for i in $(seq 1 30); do
-  if docker exec hsdeck wget -qO- http://127.0.0.1:3001/api/health >/dev/null 2>&1; then break; fi
-  sleep 2
-done
-docker exec hsdeck npm run import:pro-decks || true
-
-if ! docker ps --format '{{.Names}}' | grep -qx caddy; then
-  docker run -d --name caddy --restart unless-stopped --network hsdeck \
-    -p 80:80 -p 443:443 -v /data/caddy:/data caddy:2 \
-    caddy reverse-proxy --from "https://$APP_HOST" --to hsdeck:3001
-fi
-
-docker image prune -f >/dev/null 2>&1 || true
-echo "deployed $IMAGE at https://$APP_HOST"
-DEPLOY
+echo "${app_host}" > /opt/hsdeck/app_host
+curl -fsSL "${deploy_script_url}" -o /opt/hsdeck/deploy.sh
 chmod +x /opt/hsdeck/deploy.sh
-
-/opt/hsdeck/deploy.sh
+IMAGE="${image}" /opt/hsdeck/deploy.sh

@@ -5,7 +5,13 @@ import { HTTPException } from 'hono/http-exception';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
+import { authRoutes, SESSION_COOKIE } from './auth/auth-routes.js';
+import { clientsFromConfig, type OAuthClients } from './auth/oauth.js';
+import { UserRepo } from './auth/user-repo.js';
 import { cardRoutes } from './cards/card-routes.js';
+import { viewerMiddleware, type AppEnv } from './http/viewer.js';
+import { adminRoutes } from './pro/admin-routes.js';
+import { CandidateRepo } from './pro/candidate-repo.js';
 import { CardStore } from './cards/card-store.js';
 import { config } from './config.js';
 import { openDatabase, type Database } from './db.js';
@@ -19,15 +25,23 @@ export interface AppOptions {
   /** Serve the built client from client/dist (production). */
   serveClient?: boolean;
   quiet?: boolean;
+  /** OAuth clients; tests pass fakes. Defaults to the providers configured by env. */
+  oauthClients?: OAuthClients;
+  adminLogins?: string[];
+  adminApiToken?: string;
 }
 
 export function createApp(opts: AppOptions = {}) {
   const db = opts.db ?? openDatabase(config.dbPath);
   const cards = opts.cards ?? CardStore.fromDataDir(config.dataDir);
   const decks = new DeckRepo(db);
+  const users = new UserRepo(db, opts.adminLogins ?? config.adminLogins);
+  const candidates = new CandidateRepo(db);
+  const oauthClients = opts.oauthClients ?? clientsFromConfig(config.oauth, config.appUrl);
 
-  const app = new Hono();
+  const app = new Hono<AppEnv>();
   if (!opts.quiet) app.use(logger());
+  app.use('/api/*', viewerMiddleware(users, SESSION_COOKIE));
   app.use(
     '/api/*',
     cors({
@@ -40,6 +54,27 @@ export function createApp(opts: AppOptions = {}) {
   app.get('/api/health', (c) => c.json({ ok: true, cards: cards.cards.length }));
   app.route('/api', cardRoutes(cards));
   app.route('/api', deckRoutes({ decks, cards }));
+  app.route(
+    '/api',
+    authRoutes({
+      users,
+      decks,
+      clients: oauthClients,
+      secret: config.authSecret,
+      secure: config.isProduction,
+    }),
+  );
+  app.route(
+    '/api',
+    adminRoutes({
+      candidates,
+      decks,
+      cards,
+      dataDir: config.dataDir,
+      youtubeApiKey: config.youtubeApiKey,
+      adminApiToken: opts.adminApiToken ?? config.adminApiToken,
+    }),
+  );
 
   app.notFound((c) =>
     c.json(
@@ -63,5 +98,5 @@ export function createApp(opts: AppOptions = {}) {
     app.get('/*', serveStatic({ root, path: 'index.html' }));
   }
 
-  return { app, db, cards, decks };
+  return { app, db, cards, decks, users, candidates };
 }

@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Hono } from 'hono';
+import type { AppEnv } from '../http/viewer.js';
 import { encodeDeckstring } from '@hsdeck/shared';
 import { createApp } from '../app.js';
 import { CardStore } from '../cards/card-store.js';
@@ -10,7 +11,7 @@ import { openDatabase } from '../db.js';
 import { DeckRepo } from '../decks/deck-repo.js';
 import { importProDecks } from '../decks/pro-import.js';
 
-let app: Hono;
+let app: Hono<AppEnv>;
 let cards: CardStore;
 let decks: DeckRepo;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

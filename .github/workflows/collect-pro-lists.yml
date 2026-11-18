@@ -1,0 +1,38 @@
+name: Collect pro lists
+# Weekly: runs the YouTube collector on the AWS instance (needs YOUTUBE_API_KEY in
+# Parameter Store). New candidates appear in /admin/pro-queue for approval.
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Mondays 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  collect:
+    if: ${{ vars.AWS_DEPLOY_ROLE_ARN != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-west-2' }}
+      - name: Run the collector in the app container via SSM
+        run: |
+          set -euo pipefail
+          CMD_ID=$(aws ssm send-command \
+            --targets "Key=tag:App,Values=${{ vars.AWS_APP_NAME || 'hsdeckbuilder' }}" \
+            --document-name AWS-RunShellScript \
+            --parameters 'commands=["docker exec hsdeck npm run collect:pro"]' \
+            --query Command.CommandId --output text)
+          for i in $(seq 1 30); do
+            STATUS=$(aws ssm list-command-invocations --command-id "$CMD_ID" --details --query 'CommandInvocations[0].Status' --output text 2>/dev/null || echo Pending)
+            case "$STATUS" in
+              Success) aws ssm list-command-invocations --command-id "$CMD_ID" --details --query 'CommandInvocations[0].CommandPlugins[0].Output' --output text | tail -10; exit 0;;
+              Failed|Cancelled|TimedOut) aws ssm list-command-invocations --command-id "$CMD_ID" --details --query 'CommandInvocations[0].CommandPlugins[0].Output' --output text | tail -30; exit 1;;
+            esac
+            sleep 10
+          done
+          exit 1

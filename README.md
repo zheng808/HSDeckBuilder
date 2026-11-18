@@ -40,9 +40,15 @@ docs/     architecture, brainstorm, backlog (deploy plan + features), API contra
 .claude/  Claude Code skills, agents, workflows, hooks and rules for this repo
 ```
 
-## How publishing works (no accounts yet)
+## Accounts and publishing
 
-The browser generates a random owner token on first visit and sends it with every write. Decks are private drafts until you publish; published decks are visible to everyone at `/decks/:id` and on the home page. Only the browser holding the token can edit, unpublish or delete. See "Path to real auth" in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Guests can build without signing in: the browser generates a random owner token and sends it with every write, so only that browser can edit its drafts. Sign in with GitHub or Google (OAuth, server-side sessions in SQLite) to keep decks across devices; decks made as a guest are claimed on first sign-in. Signed-in users get a public profile (`/users/:id`) and can like decks. Decks are private drafts until published; published decks are visible to everyone at `/decks/:id` and on the home page.
+
+To enable sign-in, register an OAuth app per provider with callback `<APP_URL>/api/auth/callback/<provider>` and set `GITHUB_CLIENT_ID/SECRET`, `GOOGLE_CLIENT_ID/SECRET`, `APP_URL`, `AUTH_SECRET` and `ADMIN_LOGINS` (see `server/.env.example`). Sign-in stays hidden until a provider is configured.
+
+## Pro lists and the collector
+
+Tournament lists are imported from `server/data/pro-decks.json`. Creator lists arrive through a collector: `server/data/pro-sources.json` names YouTube channels, `npm run collect:pro` (or the weekly "Collect pro lists" workflow) pulls their recent uploads through the YouTube Data API, extracts deck codes from descriptions, validates them, and queues them. Admins (`ADMIN_LOGINS`) approve or reject candidates at `/admin/pro-queue`; approved lists become published decks with a creator badge and a link to the video. Needs `YOUTUBE_API_KEY`.
 
 ## Pipeline and deployment
 

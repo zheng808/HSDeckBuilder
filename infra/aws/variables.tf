@@ -56,3 +56,9 @@ variable "github_oidc_provider_arn" {
   type        = string
   default     = ""
 }
+
+variable "deploy_script_url" {
+  description = "Raw URL of infra/aws/deploy.sh; the instance downloads it at boot and on every deploy."
+  type        = string
+  default     = "https://raw.githubusercontent.com/zheng808/HSDeckBuilder/main/infra/aws/deploy.sh"
+}

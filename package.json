@@ -21,7 +21,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "seed:cards": "npm run seed:cards -w server",
-    "import:pro-decks": "npm run import:pro-decks -w server"
+    "import:pro-decks": "npm run import:pro-decks -w server",
+    "collect:pro": "npm run collect:pro -w server"
   },
   "devDependencies": {
     "@types/node": "^22.20.0",

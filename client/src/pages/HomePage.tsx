@@ -11,7 +11,7 @@ import { SegmentedControl } from '../components/ui/SegmentedControl';
 import { Spinner } from '../components/ui/Spinner';
 
 type FormatFilter = DeckFormat | 'ALL';
-type Sort = 'newest' | 'popular';
+type Sort = 'newest' | 'popular' | 'liked';
 
 export function HomePage() {
   const [params, setParams] = useSearchParams();
@@ -20,7 +20,8 @@ export function HomePage() {
   const format: FormatFilter =
     formatParam === 'STANDARD' || formatParam === 'WILD' ? formatParam : 'ALL';
   const q = params.get('q') ?? '';
-  const sort: Sort = params.get('sort') === 'popular' ? 'popular' : 'newest';
+  const sortParam = params.get('sort');
+  const sort: Sort = sortParam === 'popular' || sortParam === 'liked' ? sortParam : 'newest';
   const kindParam = params.get('kind');
   const kind: DeckKind = kindParam === 'pro' || kindParam === 'community' ? kindParam : 'all';
   const archetype = params.get('archetype') ?? undefined;
@@ -104,6 +105,7 @@ export function HomePage() {
             options={[
               { value: 'newest', label: 'Newest' },
               { value: 'popular', label: 'Popular' },
+              { value: 'liked', label: 'Most liked' },
             ]}
           />
         </div>

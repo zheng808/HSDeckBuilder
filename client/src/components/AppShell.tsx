@@ -1,5 +1,9 @@
-import { NavLink, Outlet } from 'react-router';
+import { useEffect } from 'react';
+import { NavLink, Outlet, useSearchParams } from 'react-router';
+import { authErrorMessage } from '../lib/auth';
 import { cn } from '../lib/format';
+import { UserMenu } from './auth/UserMenu';
+import { useToast } from './ui/Toast';
 
 const links = [
   { to: '/', label: 'Decks', end: true },
@@ -7,7 +11,23 @@ const links = [
   { to: '/my', label: 'My Decks' },
 ];
 
+/** Shows the `?auth_error=` code the server redirects back with, once, then strips it. */
+function useAuthErrorToast() {
+  const [params, setParams] = useSearchParams();
+  const toast = useToast();
+  const code = params.get('auth_error');
+  useEffect(() => {
+    if (!code) return;
+    toast.error(authErrorMessage(code));
+    const next = new URLSearchParams(params);
+    next.delete('auth_error');
+    setParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code]);
+}
+
 export function AppShell() {
+  useAuthErrorToast();
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b border-line bg-bg/90 backdrop-blur">
@@ -34,6 +54,9 @@ export function AppShell() {
                 {l.label}
               </NavLink>
             ))}
+            <span className="ml-2">
+              <UserMenu />
+            </span>
           </nav>
         </div>
       </header>

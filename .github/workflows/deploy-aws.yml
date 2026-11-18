@@ -44,7 +44,7 @@ jobs:
             --targets "Key=tag:App,Values=${{ vars.AWS_APP_NAME || 'hsdeckbuilder' }}" \
             --document-name AWS-RunShellScript \
             --comment "deploy ${{ github.sha }}" \
-            --parameters 'commands=["/opt/hsdeck/deploy.sh"]' \
+            --parameters 'commands=["curl -fsSL https://raw.githubusercontent.com/${{ github.repository }}/main/infra/aws/deploy.sh -o /opt/hsdeck/deploy.sh","chmod +x /opt/hsdeck/deploy.sh","/opt/hsdeck/deploy.sh"]' \
             --query Command.CommandId --output text)
           echo "command: $CMD_ID"
           for i in $(seq 1 60); do

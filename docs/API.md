@@ -9,6 +9,42 @@ Every write sends it as the `x-owner-token` header. The server stores only a SHA
 A deck is editable by whoever presents the token it was created with. This is deliberately
 simple; see `docs/ARCHITECTURE.md` for the path to real accounts.
 
+## Accounts, sessions and ownership
+
+Sign-in is OAuth (GitHub, Google) with server-side sessions in SQLite and an `hs_session` httpOnly cookie (SameSite=Lax, Secure in production, 30 days). Guests keep using the owner token. A deck is owned by its `author` (user) when `deck.author` is set, otherwise by the owner token that created it. On sign-in, every deck owned by the token the browser sent along is **claimed** by the user.
+
+| Method | Path                                              | Auth                 | Notes                                                                                                                                                                                        |
+| ------ | ------------------------------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/api/auth/providers`                             | –                    | `{ providers: ("github"\|"google")[] }` — only providers with credentials configured.                                                                                                        |
+| GET    | `/api/auth/login/:provider?ownerToken=&returnTo=` | –                    | Redirects to the provider. Stores state, the owner token (for claiming) and `returnTo` (same-origin path only) in a signed cookie.                                                           |
+| GET    | `/api/auth/callback/:provider`                    | –                    | Provider redirect target. Creates/updates the user, claims token-owned decks, sets the session cookie, redirects to `returnTo` (default `/`). On failure redirects to `/?auth_error=<code>`. |
+| GET    | `/api/auth/me`                                    | cookie               | `{ user: User \| null }`.                                                                                                                                                                    |
+| POST   | `/api/auth/logout`                                | cookie               | Clears the session. 204.                                                                                                                                                                     |
+| POST   | `/api/auth/claim`                                 | cookie + owner token | Claims the token's decks for the signed-in user. `{ claimed: number }`.                                                                                                                      |
+| GET    | `/api/users/:id`                                  | –                    | Public profile: `{ user: DeckAuthor & { createdAt }, decks: DeckSummary[] }` (published only).                                                                                               |
+
+Ownership rules everywhere else: "owner" means the session user (if the deck has an author) or the matching owner token (if it doesn't). `x-owner-token` remains accepted on every request.
+
+## Likes
+
+| Method | Path                  | Auth               | Notes                                                              |
+| ------ | --------------------- | ------------------ | ------------------------------------------------------------------ |
+| PUT    | `/api/decks/:id/like` | cookie (signed-in) | Idempotent like. Returns `{ likes, liked: true }`. 401 for guests. |
+| DELETE | `/api/decks/:id/like` | cookie             | Removes the like. `{ likes, liked: false }`.                       |
+
+`GET /api/decks/:id` includes `liked: boolean` for the viewer. `DeckSummary`/`Deck` carry `likes` and `author`. `GET /api/decks` accepts `sort=liked` and `author=<userId>`.
+
+## Pro-list collection (admin)
+
+Admins are users whose provider login is listed in `ADMIN_LOGINS` (comma-separated, e.g. `github:zheng808`). The collector reads `server/data/pro-sources.json` (YouTube channels), fetches recent uploads through the YouTube Data API (`YOUTUBE_API_KEY`), extracts deck codes from descriptions, decodes/validates them and stores candidates.
+
+| Method | Path                                                              | Auth                                       | Notes                                                                                                                                                       |
+| ------ | ----------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/api/admin/candidates?status=pending\|approved\|rejected&limit=` | admin                                      | `{ items: ProCandidate[] }`.                                                                                                                                |
+| POST   | `/api/admin/candidates/:id/approve`                               | admin                                      | Body `{ name?, archetype? }`. Imports as a published deck with `source.type = "creator"`; returns `{ candidate, deck }`. 422 if the list is not importable. |
+| POST   | `/api/admin/candidates/:id/reject`                                | admin                                      | `{ candidate }`.                                                                                                                                            |
+| POST   | `/api/admin/collect`                                              | admin or `x-admin-token: $ADMIN_API_TOKEN` | Runs the collectors now. `{ scanned, added, skipped }`. Also runnable as `npm run collect:pro -w server`.                                                   |
+
 ## Cards
 
 | Method | Path                | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -39,4 +75,4 @@ Tournament, streamer and creator lists are imported from `server/data/pro-decks.
 
 ## Types
 
-All payload types come from `@hsdeck/shared` (`Card`, `Deck`, `DeckSummary`, `DeckSource`, `DeckInput`, `DeckUpdate`, `ValidationResult`, `DeckStats`, `DeckIssue`, `DeckDiff`).
+All payload types come from `@hsdeck/shared` (`Card`, `Deck`, `DeckSummary`, `DeckSource`, `DeckAuthor`, `User`, `ProCandidate`, `DeckInput`, `DeckUpdate`, `ValidationResult`, `DeckStats`, `DeckIssue`, `DeckDiff`).

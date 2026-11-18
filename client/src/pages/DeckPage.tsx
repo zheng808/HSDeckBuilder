@@ -14,7 +14,9 @@ import { useBuilderStore } from '../store/builder-store';
 import { ClassBadge } from '../components/ClassBadge';
 import { FormatBadge } from '../components/FormatBadge';
 import { DeckCardRow } from '../components/deck/DeckCardRow';
+import { AuthorLink } from '../components/deck/AuthorLink';
 import { DeckDiffList } from '../components/deck/DeckDiffList';
+import { LikeButton } from '../components/deck/LikeButton';
 import { ManaCurve } from '../components/deck/ManaCurve';
 import { SourceBadge } from '../components/deck/SourceBadge';
 import { Button, buttonClasses } from '../components/ui/Button';
@@ -49,7 +51,7 @@ export function DeckPage() {
       />
     );
   }
-  const { deckCode, stats, validation, isOwner: isMine, basedOn, diff } = deckQuery.data;
+  const { deckCode, stats, validation, isOwner: isMine, basedOn, diff, liked } = deckQuery.data;
 
   const copyCode = async () => {
     try {
@@ -75,7 +77,7 @@ export function DeckPage() {
               {deck.archetype && <span className="text-ink">{deck.archetype}</span>}
               <FormatBadge format={deck.format} />
               {deck.source && <SourceBadge source={deck.source} />}
-              <span>by {deck.authorName}</span>
+              <AuthorLink author={deck.author} fallbackName={deck.authorName} />
               <span>{viewsLabel(deck.views)}</span>
               <span>updated {relativeTime(deck.updatedAt)}</span>
               {!deck.published && (
@@ -84,6 +86,9 @@ export function DeckPage() {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
+            {deck.published && (
+              <LikeButton deckId={deck.id} likes={deck.likes ?? 0} liked={liked ?? false} />
+            )}
             <Button variant="secondary" onClick={() => void copyCode()}>
               Copy deck code
             </Button>

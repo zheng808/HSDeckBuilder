@@ -18,7 +18,7 @@ output "ssm_session_command" {
 
 output "deploy_command" {
   description = "Pull the latest image and restart the app (what the GitHub workflow runs)."
-  value       = "aws ssm send-command --region ${var.region} --targets Key=tag:App,Values=${var.app_name} --document-name AWS-RunShellScript --parameters commands=/opt/hsdeck/deploy.sh"
+  value       = "aws ssm send-command --region ${var.region} --targets Key=tag:App,Values=${var.app_name} --document-name AWS-RunShellScript --parameters 'commands=[\"curl -fsSL ${var.deploy_script_url} -o /opt/hsdeck/deploy.sh\",\"chmod +x /opt/hsdeck/deploy.sh\",\"/opt/hsdeck/deploy.sh\"]'"
 }
 
 output "github_deploy_role_arn" {

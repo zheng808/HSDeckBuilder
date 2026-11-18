@@ -65,6 +65,25 @@ export interface Card {
   standard: boolean;
 }
 
+export const AUTH_PROVIDERS = ['github', 'google'] as const;
+export type AuthProvider = (typeof AUTH_PROVIDERS)[number];
+
+/** A signed-in account. Decks reference users; guests keep using the owner token. */
+export interface User {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  isAdmin: boolean;
+  createdAt: string;
+}
+
+/** Public author info attached to decks. Null for anonymous (token-only) decks. */
+export interface DeckAuthor {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+}
+
 export interface DeckCardEntry {
   dbfId: number;
   count: number;
@@ -105,6 +124,9 @@ export interface Deck {
   source: DeckSource | null;
   /** The deck this one was remixed from (see "Open in builder"). */
   basedOnId: string | null;
+  /** Account that owns the deck; null when owned by an anonymous token. */
+  author: DeckAuthor | null;
+  likes: number;
   published: boolean;
   views: number;
   createdAt: string;
@@ -121,11 +143,36 @@ export interface DeckSummary {
   archetype: string | null;
   source: DeckSource | null;
   basedOnId: string | null;
+  author: DeckAuthor | null;
+  likes: number;
   published: boolean;
   views: number;
   cardCount: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export const CANDIDATE_STATUSES = ['pending', 'approved', 'rejected'] as const;
+export type CandidateStatus = (typeof CANDIDATE_STATUSES)[number];
+
+/** A deck code collected from a creator source, awaiting admin review. */
+export interface ProCandidate {
+  id: string;
+  status: CandidateStatus;
+  source: DeckSource;
+  /** Video/post title the code was found in. */
+  title: string;
+  code: string;
+  heroClass: CardClass | null;
+  format: DeckFormat | null;
+  cardCount: number;
+  /** Validation problems, empty when the list is importable. */
+  issues: string[];
+  archetypeGuess: string | null;
+  /** Set once approved. */
+  deckId: string | null;
+  createdAt: string;
+  reviewedAt: string | null;
 }
 
 /** Minimal shape needed by the deck rules; `Card` satisfies it. */

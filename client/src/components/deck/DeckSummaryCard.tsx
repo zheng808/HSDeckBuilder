@@ -4,6 +4,8 @@ import { classColor } from '../../lib/class-meta';
 import { relativeTime, viewsLabel } from '../../lib/format';
 import { ClassBadge } from '../ClassBadge';
 import { FormatBadge } from '../FormatBadge';
+import { AuthorLink } from './AuthorLink';
+import { LikeCount } from './LikeButton';
 import { SourceBadge } from './SourceBadge';
 
 export function DeckSummaryCard({ deck }: { deck: DeckSummary }) {
@@ -26,7 +28,7 @@ export function DeckSummaryCard({ deck }: { deck: DeckSummary }) {
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-muted">
           <ClassBadge cls={deck.heroClass} className="text-xs" />
           {deck.archetype && <span className="text-ink">{deck.archetype}</span>}
-          <span>by {deck.authorName}</span>
+          <AuthorLink author={deck.author} fallbackName={deck.authorName} asLink={false} />
         </div>
         {deck.source && (
           <div className="flex">
@@ -38,6 +40,7 @@ export function DeckSummaryCard({ deck }: { deck: DeckSummary }) {
             {deck.cardCount}/{DECK_SIZE} cards
           </span>
           <span>{viewsLabel(deck.views)}</span>
+          <LikeCount likes={deck.likes ?? 0} />
           <span className="ml-auto">{relativeTime(deck.updatedAt)}</span>
           {!deck.published && (
             <span className="rounded bg-surface-3 px-1.5 text-ink-muted">Draft</span>

@@ -35,7 +35,8 @@ npm run build && npm start   # production: server serves client/dist
 - Deck legality: `shared/src/deck-rules.ts` (`validateDeck`, `canAddCard`, `deckStats`). Rules of record: `.claude/skills/deck-rules/SKILL.md`.
 - Rotation: `STANDARD_SETS` in `shared/src/constants.ts` (hand-maintained; `/refresh-cards`).
 - API contract: `docs/API.md`; routes in `server/src/{cards,decks}/*-routes.ts`; tests in `server/src/__tests__/api.test.ts`.
-- Ownership: anonymous `x-owner-token` header, hashed in SQLite (no accounts yet). Imported pro lists belong to `IMPORT_OWNER_TOKEN` (default `system-pro-import`).
+- Ownership: signed-in users (OAuth GitHub/Google, `server/src/auth/*`, `hs_session` cookie) or the anonymous `x-owner-token` header; `ownsDeck()` in `deck-repo.ts` decides. Admins via `ADMIN_LOGINS`. Imported pro lists belong to `IMPORT_OWNER_TOKEN` (default `system-pro-import`).
+- Pro feeds: `server/src/pro/*` (YouTube collector → `pro_candidates` → `/admin/pro-queue`), weekly `collect-pro-lists.yml`.
 - Pro lists / remix: `server/src/decks/pro-import.ts`, `server/data/pro-decks.json`; `basedOnId` + `diffDecks` power the "based on" diff.
 - Builder state: `client/src/store/builder-store.ts`; data hooks: `client/src/api/hooks.ts`.
 - Design notes, ideas and the prioritised backlog: `docs/ARCHITECTURE.md`, `docs/BRAINSTORM.md`, `docs/BACKLOG.md` (deploy-to-GitHub plan is Epic A).

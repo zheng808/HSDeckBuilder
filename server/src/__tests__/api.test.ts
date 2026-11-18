@@ -1,12 +1,13 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Hono } from 'hono';
+import type { AppEnv } from '../http/viewer.js';
 import { createApp } from '../app.js';
 import { openDatabase } from '../db.js';
 import { CardStore } from '../cards/card-store.js';
 import { config } from '../config.js';
 import { DECK_SIZE, encodeDeckstring, type Card } from '@hsdeck/shared';
 
-let app: Hono;
+let app: Hono<AppEnv>;
 let cards: CardStore;
 const OWNER = { 'x-owner-token': 'owner-token-1234' };
 const OTHER = { 'x-owner-token': 'other-token-5678' };

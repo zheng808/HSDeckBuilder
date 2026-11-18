@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { CARD_CLASSES, CARD_TYPES, DECK_FORMATS, DECK_SOURCE_TYPES, RARITIES } from './types.js';
+import {
+  CANDIDATE_STATUSES,
+  CARD_CLASSES,
+  CARD_TYPES,
+  DECK_FORMATS,
+  DECK_SOURCE_TYPES,
+  RARITIES,
+} from './types.js';
 import { DECK_SIZE, MAX_COPIES } from './constants.js';
 
 export const deckCardEntrySchema = z.object({
@@ -48,12 +55,14 @@ export type DeckKind = (typeof DECK_KINDS)[number];
 
 export const deckListQuerySchema = z.object({
   class: z.enum(CARD_CLASSES).optional(),
+  /** Only decks by this user id. */
+  author: z.string().trim().max(40).optional(),
   format: z.enum(DECK_FORMATS).optional(),
   q: z.string().trim().max(100).optional(),
   /** pro = imported lists with a source; community = everything else. */
   kind: z.enum(DECK_KINDS).default('all'),
   archetype: z.string().trim().max(40).optional(),
-  sort: z.enum(['newest', 'popular']).default('newest'),
+  sort: z.enum(['newest', 'popular', 'liked']).default('newest'),
   limit: z.coerce.number().int().min(1).max(100).default(50),
   offset: z.coerce.number().int().min(0).default(0),
 });
@@ -95,3 +104,33 @@ export const proDeckImportSchema = z.array(
   }),
 );
 export type ProDeckImport = z.infer<typeof proDeckImportSchema>;
+
+export const candidateReviewSchema = z.object({
+  /** Overrides applied when approving. */
+  name: z.string().trim().min(1).max(60).optional(),
+  archetype: z.string().trim().max(40).nullable().optional(),
+});
+
+export const candidateListQuerySchema = z.object({
+  status: z.enum(CANDIDATE_STATUSES).default('pending'),
+  limit: z.coerce.number().int().min(1).max(200).default(100),
+});
+
+/** Shape of server/data/pro-sources.json: creator channels the collector watches. */
+export const proSourcesSchema = z.object({
+  youtube: z
+    .array(
+      z
+        .object({
+          channelId: z.string().trim().min(1).max(60).optional(),
+          /** "@handle" as shown in the channel URL; resolved through the API. */
+          handle: z.string().trim().min(2).max(60).optional(),
+          name: z.string().trim().min(1).max(60),
+          /** Only videos whose title matches (case-insensitive regex) are scanned. */
+          titleFilter: z.string().max(200).optional(),
+        })
+        .refine((s) => s.channelId || s.handle, { message: 'channelId or handle is required' }),
+    )
+    .default([]),
+});
+export type ProSources = z.infer<typeof proSourcesSchema>;

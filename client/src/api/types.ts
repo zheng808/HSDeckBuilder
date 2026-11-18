@@ -1,12 +1,16 @@
 import type {
+  AuthProvider,
   CardClass,
   Deck,
+  DeckAuthor,
   DeckCardEntry,
   DeckDiff,
   DeckFormat,
   DeckKind,
   DeckStats,
   DeckSummary,
+  ProCandidate,
+  User,
   ValidationResult,
 } from '@hsdeck/shared';
 
@@ -29,6 +33,36 @@ export interface DeckResponse {
   basedOn: DeckSummary | null;
   /** Cards added/removed relative to `basedOn`. */
   diff: DeckDiff | null;
+  /** Whether the signed-in viewer has liked this deck. */
+  liked: boolean;
+}
+
+export interface MeResponse {
+  user: User | null;
+}
+
+export interface ProvidersResponse {
+  providers: AuthProvider[];
+}
+
+export interface ProfileResponse {
+  user: DeckAuthor & { createdAt: string };
+  decks: DeckSummary[];
+}
+
+export interface LikeResponse {
+  likes: number;
+  liked: boolean;
+}
+
+export interface CandidatesResponse {
+  items: ProCandidate[];
+}
+
+export interface CollectResponse {
+  scanned: number;
+  added: number;
+  skipped: number;
 }
 
 export interface ArchetypesResponse {
@@ -58,7 +92,8 @@ export interface DeckListParams {
   q?: string;
   kind?: DeckKind;
   archetype?: string;
-  sort?: 'newest' | 'popular';
+  author?: string;
+  sort?: 'newest' | 'popular' | 'liked';
   limit?: number;
   offset?: number;
 }

@@ -22,8 +22,8 @@ Goal: the app lives in a public repo under your personal GitHub account and runs
 
 | ID   | Item                                                | Size | Status | Notes                                                                                                                                                     |
 | ---- | --------------------------------------------------- | ---- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| B-01 | Accounts and profiles                               | L    | todo   | Auth.js or Clerk; `users` table; claim anonymous decks whose `owner_hash` matches the browser token on first login. See ARCHITECTURE "Path to real auth". |
-| B-02 | Likes / bookmarks and "popular this week"           | M    | todo   | `deck_votes` table, daily aggregate, new `sort=trending`.                                                                                                 |
+| B-01 | Accounts and profiles                               | L    | done   | Auth.js or Clerk; `users` table; claim anonymous decks whose `owner_hash` matches the browser token on first login. See ARCHITECTURE "Path to real auth". |
+| B-02 | Likes / bookmarks and "popular this week"           | M    | doing  | `deck_votes` table, daily aggregate, new `sort=trending`.                                                                                                 |
 | B-03 | Render deck descriptions as Markdown                | S    | todo   | Sanitise; description field already exists.                                                                                                               |
 | B-04 | Card detail popover                                 | S    | todo   | Full text, flavour, related cards (`referencedTags`).                                                                                                     |
 | B-05 | Archetype tags (Aggro / Midrange / Control / Combo) | S    | todo   | Author-chosen, filterable on home.                                                                                                                        |
@@ -64,6 +64,19 @@ Goal: experience AWS with infrastructure as code while keeping the app unchanged
 | D-04 | Custom domain + Route 53 + ACM/Caddy                                                                                         | S    | todo   | removes the sslip.io dependency; add `aws_route53_zone`/records.                                                                                                                                                                       |
 | D-05 | Remote state in S3 with locking                                                                                              | S    | todo   | bootstrap bucket once, add backend block.                                                                                                                                                                                              |
 | D-06 | Move SQLite to RDS Postgres (optional, for ECS/App Runner)                                                                   | L    | todo   | only if you want the managed-database experience; storage is isolated in `deck-repo.ts`.                                                                                                                                               |
+
+## Epic E — Accounts, likes, live pro feeds
+
+Decided 2026-11-18: OAuth (GitHub, Google) with our own sessions; YouTube creator collector with an admin queue.
+
+| ID   | Item                                                           | Size | Status | Notes                                                                                                                                                                                                       |
+| ---- | -------------------------------------------------------------- | ---- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E-01 | Accounts: OAuth sign-in, sessions, claim guest decks, profiles | M    | done   | `server/src/auth/*`, `/users/:id`, `UserMenu`; sign-in hidden until a provider is configured.                                                                                                               |
+| E-02 | Likes + "Most liked" sort                                      | S    | done   | `deck_likes`, `PUT/DELETE /api/decks/:id/like`.                                                                                                                                                             |
+| E-03 | YouTube collector + admin queue                                | M    | done   | `server/src/pro/*`, `/admin/pro-queue`, weekly workflow; needs `YOUTUBE_API_KEY`.                                                                                                                           |
+| E-04 | Register OAuth apps and set secrets on both hosts              | S    | todo   | GitHub + Google apps (callback `<APP_URL>/api/auth/callback/<provider>`), `AUTH_SECRET`, `ADMIN_LOGINS`, `ADMIN_API_TOKEN`, `YOUTUBE_API_KEY`. AWS: Parameter Store `/hsdeck/*`; Fly: `flyctl secrets set`. |
+| E-05 | Comments on decks                                              | M    | todo   | Needs moderation tooling; do after accounts settle.                                                                                                                                                         |
+| E-06 | Reddit collector, HSGuru feed                                  | M    | todo   | Same candidate queue.                                                                                                                                                                                       |
 
 ## Parked
 

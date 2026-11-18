@@ -32,6 +32,21 @@ resource "aws_iam_role_policy_attachment" "instance_ssm" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
+# Read runtime secrets (OAuth, API keys) from Parameter Store under /hsdeck/.
+resource "aws_iam_role_policy" "instance_params" {
+  name = "${var.app_name}-params"
+  role = aws_iam_role.instance.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["ssm:GetParametersByPath", "ssm:GetParameter"]
+      Resource = "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/hsdeck/*"
+    }]
+  })
+}
+
 resource "aws_iam_instance_profile" "instance" {
   name = "${var.app_name}-instance"
   role = aws_iam_role.instance.name
@@ -63,11 +78,13 @@ resource "aws_instance" "app" {
   iam_instance_profile   = aws_iam_instance_profile.instance.name
 
   user_data = templatefile("${path.module}/user_data.sh.tftpl", {
-    image            = var.image
-    app_host         = local.app_host
-    volume_id_nodash = replace(aws_ebs_volume.data.id, "-", "")
+    image             = var.image
+    app_host          = local.app_host
+    volume_id_nodash  = replace(aws_ebs_volume.data.id, "-", "")
+    deploy_script_url = var.deploy_script_url
   })
-  user_data_replace_on_change = true
+  # user data only runs at first boot; later script changes ship via deploy.sh, so don't replace the instance
+  user_data_replace_on_change = false
 
   root_block_device {
     volume_size = 8

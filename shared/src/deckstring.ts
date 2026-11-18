@@ -159,3 +159,17 @@ export function extractDeckstring(text: string): string | undefined {
     .map((l) => l.trim())
     .find((l) => l.length > 0 && !l.startsWith('#') && /^[A-Za-z0-9+/=]+$/.test(l));
 }
+
+/** Every deck-code-looking token in free text (descriptions, posts), de-duplicated. */
+export function findDeckstrings(text: string): string[] {
+  const found = new Set<string>();
+  for (const m of text.matchAll(/\bAAE[A-Za-z0-9+/]{16,}={0,2}/g)) {
+    try {
+      decodeDeckstring(m[0]);
+      found.add(m[0]);
+    } catch {
+      // not a valid code
+    }
+  }
+  return [...found];
+}
