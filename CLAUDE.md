@@ -22,6 +22,10 @@ npm run import:pro-decks # import server/data/pro-decks.json (tournament/streame
 npm run build && npm start   # production: server serves client/dist
 ```
 
+## Deployment
+
+- Live: https://hsdeckbuilder.fly.dev (Fly.io app `hsdeckbuilder`, region sjc, volume `data` at /data). CI + GHCR image on every push to `main`; `flyctl deploy --remote-only --ha=false` to ship. Pro lists are seeded on the machine with `flyctl ssh console -C "npm run import:pro-decks"`.
+
 ## Where things live
 
 - Deck legality: `shared/src/deck-rules.ts` (`validateDeck`, `canAddCard`, `deckStats`). Rules of record: `.claude/skills/deck-rules/SKILL.md`.

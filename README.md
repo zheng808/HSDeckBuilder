@@ -1,6 +1,8 @@
 # Hearthstone Deck Builder
 
-[![CI](https://github.com/zheng808/HSDeckBuilder/actions/workflows/ci.yml/badge.svg)](https://github.com/zheng808/HSDeckBuilder/actions/workflows/ci.yml) [![Release image](https://github.com/zheng808/HSDeckBuilder/actions/workflows/release.yml/badge.svg)](https://github.com/zheng808/HSDeckBuilder/actions/workflows/release.yml)
+[![CI](https://github.com/zheng808/HSDeckBuilder/actions/workflows/ci.yml/badge.svg)](https://github.com/zheng808/HSDeckBuilder/actions/workflows/ci.yml) **Live: [hsdeckbuilder.fly.dev](https://hsdeckbuilder.fly.dev)**
+
+[![Release image](https://github.com/zheng808/HSDeckBuilder/actions/workflows/release.yml/badge.svg)](https://github.com/zheng808/HSDeckBuilder/actions/workflows/release.yml)
 
 Build a 30-card deck for any of the 11 classes, see it validated live against the real deck-building rules (copy limits, class cards, Standard vs Wild, Death Knight runes), publish it, and browse decks other people have shared. Browse imported pro and tournament lists, open one in the builder, and publish your remix with a card-by-card diff against the original. Supports Hearthstone deck codes both ways.
 
@@ -46,7 +48,7 @@ The browser generates a random owner token on first visit and sends it with ever
 
 - **CI** (`.github/workflows/ci.yml`): Prettier check, typecheck, tests and client build on every branch push and pull request.
 - **Release image** (`.github/workflows/release.yml`): on every push to `main`, runs CI and then builds the production Docker image and publishes it to GitHub Container Registry as `ghcr.io/zheng808/hsdeckbuilder:latest` (and a commit-sha tag). No secrets needed.
-- **Deploy to Fly.io** (`.github/workflows/deploy-fly.yml`): manual workflow; add a `FLY_API_TOKEN` repository secret, create the app and a 1 GB volume named `data` as described in `fly.toml`, then run the workflow or `flyctl deploy` locally.
+- **Deploy to Fly.io** (`.github/workflows/deploy-fly.yml`): the app runs at [https://hsdeckbuilder.fly.dev](https://hsdeckbuilder.fly.dev) as a single `shared-cpu-1x` machine in `sjc` with a 1 GB volume named `data` (see `fly.toml`). Deploy locally with `flyctl deploy --remote-only --ha=false`, or add a `FLY_API_TOKEN` repository secret (`flyctl tokens create deploy`) and run the manual workflow. Seed pro lists on the machine with `flyctl ssh console -C "npm run import:pro-decks"`.
 
 Run the published image anywhere with Podman (or Docker; same commands with `docker`):
 

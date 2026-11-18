@@ -1,9 +1,9 @@
 # Fly.io config. Create the app and volume once, then `flyctl deploy`:
 #   flyctl apps create hsdeckbuilder
-#   flyctl volumes create data --size 1 --region <region>
-#   flyctl deploy
+#   flyctl volumes create data --size 1 --region sjc
+#   flyctl deploy --remote-only --ha=false
 app = "hsdeckbuilder"
-primary_region = "sea"
+primary_region = "sjc"
 
 [build]
   dockerfile = "Dockerfile"
