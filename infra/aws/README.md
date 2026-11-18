@@ -72,4 +72,5 @@ State is kept locally in `infra/aws/terraform.tfstate` (git-ignored, contains re
 
 - **Certificate not issued yet**: Caddy needs port 80/443 reachable and DNS for `<ip>.sslip.io`; first issuance takes up to a minute. Let's Encrypt rate-limits `sslip.io` as a whole; Caddy falls back to ZeroSSL automatically. A custom domain removes this dependency: point an A record at the Elastic IP and set `--from` in `deploy.sh`.
 - **Deploy role already exists / OIDC provider exists**: pass `github_oidc_provider_arn` to reuse an existing provider.
+- **"Not authorized to perform sts:AssumeRoleWithWebIdentity"**: the token's `sub` claim doesn't match the trust policy. Newer GitHub tokens use `repo:<owner>@<owner_id>/<repo>@<repo_id>:ref:...`; the policy accepts both that and the classic `repo:<owner>/<repo>:...`. The deploy workflow prints the claims it sent as a job annotation.
 - **Changing `image`, `app_name` or the host**: `user_data_replace_on_change` replaces the instance; the data volume is detached and reattached, decks are kept.

@@ -4,6 +4,8 @@
 data "aws_caller_identity" "current" {}
 
 locals {
+  github_owner           = var.github_repository != "" ? split("/", var.github_repository)[0] : ""
+  github_repo_name       = var.github_repository != "" ? split("/", var.github_repository)[1] : ""
   github_enabled         = var.github_repository != ""
   create_oidc_provider   = local.github_enabled && var.github_oidc_provider_arn == ""
   github_oidc_provider   = local.create_oidc_provider ? aws_iam_openid_connect_provider.github[0].arn : var.github_oidc_provider_arn
@@ -31,7 +33,14 @@ resource "aws_iam_role" "github_deploy" {
       Action    = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = { "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com" }
-        StringLike   = { "token.actions.githubusercontent.com:sub" = "repo:${var.github_repository}:*" }
+        # GitHub's subject claim is "repo:<owner>/<repo>:<ref>" historically and
+        # "repo:<owner>@<owner_id>/<repo>@<repo_id>:<ref>" on newer tokens; allow both.
+        StringLike = {
+          "token.actions.githubusercontent.com:sub" = [
+            "repo:${var.github_repository}:*",
+            "repo:${local.github_owner}@*/${local.github_repo_name}@*:*",
+          ]
+        }
       }
     }]
   })
