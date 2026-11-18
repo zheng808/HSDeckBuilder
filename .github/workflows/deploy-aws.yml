@@ -19,6 +19,15 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: aws-deploy
     steps:
+      - name: Check the AWS_DEPLOY_ROLE_ARN variable
+        env:
+          ROLE: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+        run: |
+          echo "AWS_DEPLOY_ROLE_ARN='$ROLE'"
+          case "$ROLE" in
+            arn:aws:iam::[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]:role/*) echo "looks like a role ARN" ;;
+            *) echo "::error::AWS_DEPLOY_ROLE_ARN must look like arn:aws:iam::<account-id>:role/<name> (get it from 'tofu output -raw github_deploy_role_arn' in infra/aws)"; exit 1 ;;
+          esac
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}

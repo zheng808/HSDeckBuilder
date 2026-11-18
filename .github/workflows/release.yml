@@ -5,6 +5,11 @@ name: Release image
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - 'infra/**'
+      - '**/*.md'
+      - '.claude/**'
   workflow_dispatch:
 
 permissions:
