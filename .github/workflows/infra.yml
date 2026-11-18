@@ -1,0 +1,25 @@
+name: Infra
+# Formats and validates the OpenTofu stack. No AWS credentials needed.
+on:
+  push:
+    paths: ['infra/**', '.github/workflows/infra.yml']
+  pull_request:
+    paths: ['infra/**', '.github/workflows/infra.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/aws
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: '1.11.3'
+      - run: tofu fmt -check -recursive -diff
+      - run: tofu init -backend=false -input=false
+      - run: tofu validate

@@ -4,3 +4,6 @@ server/data/*.json
 *.db
 *.db-*
 package-lock.json
+infra/**/*.tf
+infra/**/*.tftpl
+infra/**/.terraform

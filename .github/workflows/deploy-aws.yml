@@ -1,0 +1,48 @@
+name: Deploy to AWS
+# After "Release image" publishes a new image, assume the OIDC deploy role created by
+# infra/aws and ask SSM to run /opt/hsdeck/deploy.sh on the instance (tag App=<app_name>).
+# Needs repository variables: AWS_DEPLOY_ROLE_ARN (from `tofu output`), optionally AWS_REGION.
+on:
+  workflow_run:
+    workflows: ['Release image']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    if: ${{ vars.AWS_DEPLOY_ROLE_ARN != '' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success') }}
+    runs-on: ubuntu-latest
+    concurrency: aws-deploy
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-west-2' }}
+      - name: Run deploy.sh on the instance via SSM
+        run: |
+          set -euo pipefail
+          CMD_ID=$(aws ssm send-command \
+            --targets "Key=tag:App,Values=${{ vars.AWS_APP_NAME || 'hsdeckbuilder' }}" \
+            --document-name AWS-RunShellScript \
+            --comment "deploy ${{ github.sha }}" \
+            --parameters 'commands=["/opt/hsdeck/deploy.sh"]' \
+            --query Command.CommandId --output text)
+          echo "command: $CMD_ID"
+          for i in $(seq 1 60); do
+            STATUS=$(aws ssm list-command-invocations --command-id "$CMD_ID" --details \
+              --query 'CommandInvocations[0].Status' --output text 2>/dev/null || echo Pending)
+            echo "status: $STATUS"
+            case "$STATUS" in
+              Success) aws ssm list-command-invocations --command-id "$CMD_ID" --details \
+                         --query 'CommandInvocations[0].CommandPlugins[0].Output' --output text | tail -5; exit 0;;
+              Failed|Cancelled|TimedOut) aws ssm list-command-invocations --command-id "$CMD_ID" --details \
+                         --query 'CommandInvocations[0].CommandPlugins[0].Output' --output text | tail -40; exit 1;;
+            esac
+            sleep 10
+          done
+          echo "timed out waiting for the deploy command"; exit 1

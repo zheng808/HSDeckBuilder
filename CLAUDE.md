@@ -26,6 +26,10 @@ npm run build && npm start   # production: server serves client/dist
 
 - Live: https://hsdeckbuilder.fly.dev (Fly.io app `hsdeckbuilder`, region sjc, volume `data` at /data). CI + GHCR image on every push to `main`; `flyctl deploy --remote-only --ha=false` to ship. Pro lists are seeded on the machine with `flyctl ssh console -C "npm run import:pro-decks"`.
 
+## AWS (OpenTofu)
+
+- `infra/aws/`: VPC + EC2 (Graviton) + EBS data volume + EIP + Caddy HTTPS on `<ip>.sslip.io` + DLM snapshots + GitHub OIDC deploy role. `/aws-infra` skill for operations; rules in `.claude/rules/infra.md`. Never apply/destroy without an explicit request.
+
 ## Where things live
 
 - Deck legality: `shared/src/deck-rules.ts` (`validateDeck`, `canAddCard`, `deckStats`). Rules of record: `.claude/skills/deck-rules/SKILL.md`.

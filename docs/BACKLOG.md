@@ -52,6 +52,19 @@ Goal: give the site a reason to exist next to HSReplay without win-rate data: cu
 | C-08 | Lineage view                                  | S    | todo   | "N variants of this list" on pro deck pages (query decks by `basedOnId`).                                                                                    |
 | C-09 | Automated weekly import in CI                 | S    | todo   | GitHub Action runs the importer against the production DB after C-05/C-06.                                                                                   |
 
+## Epic D — AWS route with OpenTofu
+
+Goal: experience AWS with infrastructure as code while keeping the app unchanged (one container + SQLite on EBS). Written 2026-11-18.
+
+| ID   | Item                                                                                                                         | Size | Status | Notes                                                                                            |
+| ---- | ---------------------------------------------------------------------------------------------------------------------------- | ---- | ------ | ------------------------------------------------------------------------------------------------ |
+| D-01 | OpenTofu stack: VPC, EC2 (t4g.micro), EBS data volume, EIP, security group, IAM/SSM, Caddy HTTPS via sslip.io, DLM snapshots | M    | done   | `infra/aws`, validated with `tofu validate`; Infra workflow checks fmt/validate on every change. |
+| D-02 | GitHub OIDC deploy role + "Deploy to AWS" workflow (SSM run of `deploy.sh` after each release)                               | S    | done   | needs `AWS_DEPLOY_ROLE_ARN` repo variable after apply.                                           |
+| D-03 | First `tofu apply` in the personal AWS account and smoke test                                                                | S    | todo   | requires AWS credentials on this machine (`aws configure`); ~$11/month.                          |
+| D-04 | Custom domain + Route 53 + ACM/Caddy                                                                                         | S    | todo   | removes the sslip.io dependency; add `aws_route53_zone`/records.                                 |
+| D-05 | Remote state in S3 with locking                                                                                              | S    | todo   | bootstrap bucket once, add backend block.                                                        |
+| D-06 | Move SQLite to RDS Postgres (optional, for ECS/App Runner)                                                                   | L    | todo   | only if you want the managed-database experience; storage is isolated in `deck-repo.ts`.         |
+
 ## Parked
 
 Collection import (needs Blizzard OAuth), meta win rates (no public data), Arena draft mode.

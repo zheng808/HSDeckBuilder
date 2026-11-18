@@ -1,0 +1,6 @@
+# Copy to terraform.tfvars (git-ignored) and adjust.
+region            = "us-west-2"
+app_name          = "hsdeckbuilder"
+image             = "ghcr.io/zheng808/hsdeckbuilder:latest"
+instance_type     = "t4g.micro"
+github_repository = "zheng808/HSDeckBuilder"

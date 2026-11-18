@@ -58,6 +58,10 @@ podman run -d -p 3001:3001 -v hsdeck-data:/data ghcr.io/zheng808/hsdeckbuilder:l
 
 Build it locally with `podman build --format docker -t hsdeckbuilder .` (the `--format docker` flag keeps the `HEALTHCHECK`; CI builds the same `Dockerfile` with Buildx on the GitHub runner). The API serves the built client on the same port and stores decks in `/data/decks.db`. Seed pro lists into a running container with `podman exec <container> npm run import:pro-decks`.
 
+## AWS route (OpenTofu)
+
+[infra/aws](infra/aws/) is an OpenTofu stack that runs the same container on AWS: a small VPC, a Graviton `t4g.micro` instance with an EBS data volume (daily snapshots), an Elastic IP with automatic HTTPS on an `sslip.io` hostname, Session Manager instead of SSH, and a GitHub OIDC role so the "Deploy to AWS" workflow redeploys after every release. `tofu init && tofu apply` in that directory; details, cost (~$11/month) and teardown in [infra/aws/README.md](infra/aws/README.md).
+
 ## Configuration
 
 Copy `server/.env.example` to `server/.env` if you need to change the port, database path or CORS origins.
