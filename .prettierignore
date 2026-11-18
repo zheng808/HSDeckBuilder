@@ -7,3 +7,6 @@ package-lock.json
 infra/**/*.tf
 infra/**/*.tftpl
 infra/**/.terraform
+infra/**/*.tfstate
+infra/**/*.tfstate.*
+infra/**/tfplan
